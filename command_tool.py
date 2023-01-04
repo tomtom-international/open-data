@@ -14,6 +14,7 @@ def get_issue_list():
 def get_issue_numbers_from_exceptions(issue_list, exceptions):
     # Get remaining issues from list of exceptions
     numbers = []
+    exceptions = exceptions.split(',')
 
     if exceptions[0].isdigit():
         exceptions_int = []
@@ -49,81 +50,101 @@ def get_issue_numbers(issue_list, countries):
 
 def add_message_to_top(numbers, addition):
     for i in numbers:
+        try:
+            # Get current issue body
+            view_body = "gh issue view " + str(i)
+            print(view_body)
+            view_args = shlex.split(view_body)
 
-        # Get current issue body
-        view_body = "gh issue view " + str(i)
-        print(view_body)
-        view_args = shlex.split(view_body)
+            body = subprocess.check_output(view_args, stderr=subprocess.STDOUT).decode('utf-8')
+            body = body.split("--")[1]
 
-        body = subprocess.check_output(view_args).decode('utf-8')
-        body = body.split("--")[1]
+            # Create new issue body
+            new_body = ">" + addition + "\n" + body
 
-        # Create new issue body
-        new_body = ">" + addition + "\n" + body
+            # Update issue body
+            update_code = "gh issue edit " + str(i) + " --body"
+            print(update_code)
+            split_update_code = shlex.split(update_code)
+            split_update_code.insert(len(split_update_code),new_body)
 
-        # Update issue body
-        update_code = "gh issue edit " + str(i) + " --body"
-        print(update_code)
-        split_update_code = shlex.split(update_code)
-        split_update_code.insert(len(split_update_code),new_body)
+            subprocess.run(split_update_code, stderr=subprocess.STDOUT)
 
-        subprocess.run(split_update_code)
+        except subprocess.CalledProcessError as e:
+            if "GraphQL: Could not resolve to an issue or pull request with the number of" in e.output.decode('utf-8'):
+                e = "Issue could not be found"
+            print(f"Error in processing Issue #{i}: {e}")
+        except Exception as e:
+            print(f"Error in processing Issue #{i}: {e}")
 
 
 def delete_message_from_top(numbers):
     for i in numbers:
+        try:
+            # Get current issue body
+            view_body = "gh issue view " + str(i)
+            print(view_body)
+            view_args = shlex.split(view_body)
 
-        # Get current issue body
-        view_body = "gh issue view " + str(i)
-        print(view_body)
-        view_args = shlex.split(view_body)
+            body = subprocess.check_output(view_args, stderr=subprocess.STDOUT).decode('utf-8')
+            body = body.split("--")[1]
 
-        body = subprocess.check_output(view_args).decode('utf-8')
-        body = body.split("--")[1]
+            # Create new issue body
+            new_body = body
+            if ">" in new_body[:2]:
+                new_body = body[body.index("\n", 1)+1:].lstrip()
 
-        # Create new issue body
-        new_body = body
-        if ">" in new_body[:2]:
-            new_body = body[body.index("\n", 1)+1:].lstrip()
+            # Update issue body
+            update_code = "gh issue edit " + str(i) + " --body"
+            print(update_code)
+            split_update_code = shlex.split(update_code)
+            split_update_code.insert(len(split_update_code),new_body)
 
-        # Update issue body
-        update_code = "gh issue edit " + str(i) + " --body"
-        print(update_code)
-        split_update_code = shlex.split(update_code)
-        split_update_code.insert(len(split_update_code),new_body)
+            subprocess.run(split_update_code, stderr=subprocess.STDOUT)
 
-        subprocess.run(split_update_code)
-
+        except subprocess.CalledProcessError as e:
+            if "GraphQL: Could not resolve to an issue or pull request with the number of" in e.output.decode('utf-8'):
+                e = "Issue could not be found"
+            print(f"Error in processing Issue #{i}: {e}")
+        except Exception as e:
+            print(f"Error in processing Issue #{i}: {e}")
 
 def find_and_replace(numbers, find, replace):
     for i in numbers:
+        try:
+            # Get current issue body
+            view_body = "gh issue view " + str(i)
+            print(view_body)
+            view_args = shlex.split(view_body)
 
-        # Get current issue body
-        view_body = "gh issue view " + str(i)
-        print(view_body)
-        view_args = shlex.split(view_body)
+            body = subprocess.check_output(view_args, stderr=subprocess.STDOUT).decode('utf-8')
+            body = body.split("--")[1]
 
-        body = subprocess.check_output(view_args).decode('utf-8')
-        body = body.split("--")[1]
+            # Find and replace phrase
+            result = re.subn(find, replace, body)
+            if result[1] == 0:
+                raise Exception("Phrase '" + find + "' could not be found.")
+            else:
+                new_body = result[0]
 
-        # Find and replace phrase
-        result = re.subn(find, replace, body)
-        if result[1] == 0:
-            raise Exception("Phrase '" + find + "' could not be found in issue number " + i + ".")
-        else:
-            new_body = result[0]
+            # Update issue body
+            update_code = "gh issue edit " + str(i) + " --body"
+            print(update_code)
+            if result[1] == 1:
+                print("1 replacement was made.")
+            else:
+                print(str(result[1]) + " replacements were made.")
+            split_update_code = shlex.split(update_code)
+            split_update_code.insert(len(split_update_code),new_body)
 
-        # Update issue body
-        update_code = "gh issue edit " + str(i) + " --body"
-        print(update_code)
-        if result[1] == 1:
-            print("1 replacement was made.")
-        else:
-            print(str(result[1]) + " replacements were made.")
-        split_update_code = shlex.split(update_code)
-        split_update_code.insert(len(split_update_code),new_body)
-
-        subprocess.run(split_update_code)
+            subprocess.run(split_update_code, stderr=subprocess.STDOUT)
+        
+        except subprocess.CalledProcessError as e:
+            if "GraphQL: Could not resolve to an issue or pull request with the number of" in e.output.decode('utf-8'):
+                e = "Issue could not be found"
+            print(f"Error in processing Issue #{i}: {e}")
+        except Exception as e:
+            print(f"Error in processing Issue #{i}: {e}")
 
 
 # Command Line Functionality
