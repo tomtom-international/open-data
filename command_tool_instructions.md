@@ -19,6 +19,11 @@ Step 3: Verify that Python was successfully installed by running **python** in t
 Skip this section if you have already created a GitHub Enterprise account. Otherwise, follow the instructions here:
 https://confluence.tomtomgroup.com/pages/viewpage.action?spaceKey=DVS&title=GitHub+Enterprise+onboarding
 
+#### Installing Git for Windows
+
+Step 1: Open https://git-scm.com/download/win and download the Standalone Installer.
+
+Step 2: Open the downloaded Git installer and click Install.
 
 #### Installing GitHub CLI
 
