@@ -166,7 +166,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('-n', '--numbers',
                         help='Comma separated list of issue numbers to edit.', required=False)
     parser.add_argument('-r', '--replace',
-                        help='File with body of text to replace previous body of textg.', required=False)
+                        help='File with body of text to replace previous body of text.', required=False)
 
     args = parser.parse_args()
     if (args.replace is None and not args.find is None) or (args.find is None and not args.replace is None):
