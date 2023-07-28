@@ -103,6 +103,6 @@ Example: -m "NOTE: This project has been paused until further notice."
 -d
 Indicates that the most recent message added to the top of the issue (in gray text) should be deleted.
 
--f "Phrase to find within body of issue and replace" -r "Replacement phrase"
-Example: -f "MapRoulette" -r "HOT Tasking Manager"
-Note: In this example, all mentions of MapRoulette in the issue description will be changed to HOT Tasking Manager. The number of changes made will print in the command line console.
+-f "File with body of text to find." -r "File with body of text to replace previous body of text."
+Example: -f "C:\Users\dennehy\OneDrive - TomTom\find.txt" -r "C:\Users\dennehy\OneDrive - TomTom\replace.txt"
+Note: The number of changes made will print in the command line console.
