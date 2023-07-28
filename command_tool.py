@@ -160,13 +160,13 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('-e', '--exceptions',
                         help='Comma separated list of issue numbers NOT to edit.', required=False)
     parser.add_argument('-f', '--find',
-                        help='Phrase to find.', required=False)
+                        help='File with body of text to find.', required=False)
     parser.add_argument('-m', '--message', type=str,
                         help='Message to add to top of issue description. Must be in quotes.', required=False)
     parser.add_argument('-n', '--numbers',
                         help='Comma separated list of issue numbers to edit.', required=False)
     parser.add_argument('-r', '--replace',
-                        help='Replacement phrase to accompany find phrase.', required=False)
+                        help='File with body of text to replace previous body of textg.', required=False)
 
     args = parser.parse_args()
     if (args.replace is None and not args.find is None) or (args.find is None and not args.replace is None):
@@ -189,6 +189,10 @@ def parse_arguments() -> argparse.Namespace:
 
 def main():
     args = parse_arguments()
+    with open(args.find) as f:
+        find = f.read()
+    with open(args.replace) as f:
+        replace = f.read()
 
     if not args.countries is None:
         issue_list = get_issue_list()
@@ -198,7 +202,7 @@ def main():
         if not args.message is None:
             add_message_to_top(number_list, args.message)
         if not args.replace is None:
-            find_and_replace(number_list, args.find, args.replace)
+            find_and_replace(number_list, find, replace)
 
     if not args.numbers is None:
         if args.delete:
@@ -206,7 +210,7 @@ def main():
         if not args.message is None:
             add_message_to_top(args.numbers, args.message)
         if not args.replace is None:
-            find_and_replace(args.numbers, args.find, args.replace)
+            find_and_replace(args.numbers, find, replace)
 
     if args.all:
         issue_list = get_issue_list()
@@ -216,7 +220,7 @@ def main():
         if not args.message is None:
             add_message_to_top(number_list, args.message)
         if not args.replace is None:
-            find_and_replace(number_list, args.find, args.replace)
+            find_and_replace(number_list, find, replace)
 
     if not args.exceptions is None:
         issue_list = get_issue_list()
@@ -226,7 +230,7 @@ def main():
         if not args.message is None:
             add_message_to_top(number_list, args.message)
         if not args.replace is None:
-            find_and_replace(number_list, args.find, args.replace)
+            find_and_replace(number_list, find, replace)
 
 
 
