@@ -110,6 +110,8 @@ def delete_message_from_top(numbers):
             print(f"Error in processing Issue #{i}: {e}")
 
 def find_and_replace(numbers, find, replace):
+    find = bytes(find, "utf-8").decode("unicode_escape")
+    replace = bytes(find, "utf-8").decode("unicode_escape")
     for i in numbers:
         try:
             # Get current issue body
@@ -121,23 +123,20 @@ def find_and_replace(numbers, find, replace):
             body = body.split("--")[1]
 
             # Find and replace phrase
-            result = re.subn(find, replace, body)
-            if result[1] == 0:
+            result = body.replace(find, replace)
+            if result == body:
                 raise Exception("Phrase '" + find + "' could not be found.")
             else:
-                new_body = result[0]
+                new_body = result
 
             # Update issue body
             update_code = "gh issue edit " + str(i) + " --body"
             print(update_code)
-            if result[1] == 1:
-                print("1 replacement was made.")
-            else:
-                print(str(result[1]) + " replacements were made.")
             split_update_code = shlex.split(update_code)
             split_update_code.insert(len(split_update_code),new_body)
 
             subprocess.run(split_update_code, stderr=subprocess.STDOUT)
+            print("Replacement was made.")
         
         except subprocess.CalledProcessError as e:
             if "GraphQL: Could not resolve to an issue or pull request with the number of" in e.output.decode('utf-8'):
@@ -146,6 +145,12 @@ def find_and_replace(numbers, find, replace):
         except Exception as e:
             print(f"Error in processing Issue #{i}: {e}")
 
+def load_issue_body(issue_number):
+    # Get current issue body
+    view_body = "gh issue view " + str(issue_number) + " --json body"
+    print(view_body)
+    view_args = shlex.split(view_body)
+    subprocess.run(view_args, stderr=subprocess.STDOUT)
 
 # Command Line Functionality
 def parse_arguments() -> argparse.Namespace:
@@ -160,15 +165,25 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('-e', '--exceptions',
                         help='Comma separated list of issue numbers NOT to edit.', required=False)
     parser.add_argument('-f', '--find',
-                        help='File with body of text to find.', required=False)
+                        help='Phrase to find.', required=False)
     parser.add_argument('-m', '--message', type=str,
                         help='Message to add to top of issue description. Must be in quotes.', required=False)
     parser.add_argument('-n', '--numbers',
                         help='Comma separated list of issue numbers to edit.', required=False)
     parser.add_argument('-r', '--replace',
-                        help='File with body of text to replace previous body of text.', required=False)
+                        help='Replacement phrase to accompany find phrase.', required=False)
+    parser.add_argument('-g', '--getIssueBody',
+                        help='Issue number to retrieve issue body.', required=False)
 
     args = parser.parse_args()
+    if not args.getIssueBody is None:
+        for arg in vars(args):
+            if arg == "getIssueBody":
+                continue
+            if not getattr(args, arg) in [None, False]:
+                print(arg, getattr(args, arg))
+                raise Exception("Get Issue Body parameter cannot be combined with other parameters.")
+        return args
     if (args.replace is None and not args.find is None) or (args.find is None and not args.replace is None):
         raise Exception("If you wish to find and replace a phrase, please provide both a phrase to find (-f) and a phrase to use as replacement (-r). Otherwise please remove the -f or -r input.")
     if (not args.replace is None and args.delete) or (not args.replace is None and not args.message is None) or (args.delete and not args.message is None):
@@ -189,10 +204,10 @@ def parse_arguments() -> argparse.Namespace:
 
 def main():
     args = parse_arguments()
-    with open(args.find) as f:
-        find = f.read()
-    with open(args.replace) as f:
-        replace = f.read()
+
+    if not args.getIssueBody is None:
+        load_issue_body(args.getIssueBody)
+        return
 
     if not args.countries is None:
         issue_list = get_issue_list()
@@ -202,7 +217,7 @@ def main():
         if not args.message is None:
             add_message_to_top(number_list, args.message)
         if not args.replace is None:
-            find_and_replace(number_list, find, replace)
+            find_and_replace(number_list, args.find, args.replace)
 
     if not args.numbers is None:
         if args.delete:
@@ -210,7 +225,7 @@ def main():
         if not args.message is None:
             add_message_to_top(args.numbers, args.message)
         if not args.replace is None:
-            find_and_replace(args.numbers, find, replace)
+            find_and_replace(args.numbers, args.find, args.replace)
 
     if args.all:
         issue_list = get_issue_list()
@@ -220,7 +235,7 @@ def main():
         if not args.message is None:
             add_message_to_top(number_list, args.message)
         if not args.replace is None:
-            find_and_replace(number_list, find, replace)
+            find_and_replace(number_list, args.find, args.replace)
 
     if not args.exceptions is None:
         issue_list = get_issue_list()
@@ -230,7 +245,7 @@ def main():
         if not args.message is None:
             add_message_to_top(number_list, args.message)
         if not args.replace is None:
-            find_and_replace(number_list, find, replace)
+            find_and_replace(number_list, args.find, args.replace)
 
 
 
