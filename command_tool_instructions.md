@@ -94,6 +94,10 @@ Note: the names must be spelled exactly as they are in the GitHub issue title
 Example: -e 10,11,12
 Note: In this example, all issues in the repository besides numbers 10, 11, and 12 will be edited.
 
+-g [issue number to copy body to file]
+Copies body of issue 10 to file issue_10.md
+Example: -g 10
+
 
 #### Performing edits.
 
@@ -103,6 +107,6 @@ Example: -m "NOTE: This project has been paused until further notice."
 -d
 Indicates that the most recent message added to the top of the issue (in gray text) should be deleted.
 
--f "File with body of text to find." -r "File with body of text to replace previous body of text."
-Example: -f "C:\Users\dennehy\OneDrive - TomTom\find.txt" -r "C:\Users\dennehy\OneDrive - TomTom\replace.txt"
-Note: The number of changes made will print in the command line console.
+-f "Phrase to find." -r "Phrase to replace."
+Example: -f "HOT Tasking Manager" -r "MapRoulette"
+Note: Find phrase must be formatted identically to issue body for tool to work. Use -g to copy an issue body to a file for easy copy-paste of find phrase.
