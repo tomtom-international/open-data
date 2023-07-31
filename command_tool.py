@@ -111,7 +111,7 @@ def delete_message_from_top(numbers):
 
 def find_and_replace(numbers, find, replace):
     find = bytes(find, "utf-8").decode("unicode_escape")
-    replace = bytes(find, "utf-8").decode("unicode_escape")
+    replace = bytes(replace, "utf-8").decode("unicode_escape")
     for i in numbers:
         try:
             # Get current issue body
