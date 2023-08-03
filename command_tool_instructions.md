@@ -95,7 +95,7 @@ Example: -e 10,11,12
 Note: In this example, all issues in the repository besides numbers 10, 11, and 12 will be edited.
 
 -g [issue number to copy body to file]
-Copies body of issue 10 to file issue_10.md
+Prints body of issue to terminal.
 Example: -g 10
 
 
